@@ -1,0 +1,42 @@
+.base-background-color {
+  background: #1a237e !important;
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+.container-flex {
+  overflow-y: auto;
+}
+
+.register-logo {
+  width: 50px;
+}
+
+.max-height {
+  align-items: center;
+  max-height: 90vh;
+}
+
+.button-shade {
+  background: #ffecb3 !important;
+  box-shadow: 5px 5px #ffab40 !important;
+  position: relative;
+}
+
+.add-competition-btn {
+  background: #dcdcdc !important;
+}
+
+.event-register-box {
+  position: relative;
+}
+
+.event-register {
+  position: absolute;
+  transform: translateY(-105%);
+  background-color: white;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
