@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { db } from '../firebase';
-import { collection, setDoc, doc, deleteDoc, getDoc, getDocs } from 'firebase/firestore';
+import { collection, setDoc, doc, deleteDoc, getDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 
 const CompetitionEntry: React.FC = () => {
@@ -45,20 +45,18 @@ const CompetitionEntry: React.FC = () => {
     const fetchUserEntry = async () => {
       if (!competitionId || !user || !userData) return;
       try {
-        const athleteRef = collection(db, 'competitions', competitionId, 'athletes');
-        const athleteQuerySnapshot = await getDocs(athleteRef);
-        
-        athleteQuerySnapshot.forEach((doc) => {
-          if (doc.data().athleteName === `${userData.lastName}${userData.firstName}`) {
-            setEvents(doc.data().events);
-          }
-        });
+        const athleteRef = doc(db, 'competitions', competitionId, 'athletes');
+        const athleteQuerySnapshot = await getDoc(athleteRef);
+        if (athleteQuerySnapshot.exists()) {
+          setEvents(athleteQuerySnapshot.data().events);
+        }
       } catch (error) {
         console.error('エントリー情報の取得エラー:', error);
       }
     };
     fetchUserEntry();
   }, [competitionId, user, userData]);
+        
 
   // 新しい種目と記録を追加する
   const handleAddEvent = () => {
@@ -124,17 +122,14 @@ const CompetitionEntry: React.FC = () => {
   // フォームの送信処理（Firestoreへの登録）
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!user) {
       alert('認証情報がありません。ログインし直してください。');
       return;
     }
-
     if (!userData || !userData.firstName || !userData.lastName) {
       alert('ユーザデータが不正です');
       return;
     }
-
     // 同じ種目が複数回選ばれているかをチェック
     const eventNames = events.map(event => event.event);
     const duplicateEvent = eventNames.some((event, index) => eventNames.indexOf(event) !== index);
@@ -152,12 +147,25 @@ const CompetitionEntry: React.FC = () => {
       }
 
       // Firestoreの競技大会と選手情報のサブコレクションにデータを追加
-      const athleteRef = collection(db, 'competitions', competitionId, 'athletes');
-      const athleteFullName = userData?.lastName + userData?.firstName;
+      // const athleteRef = collection(db, 'competitions', competitionId, 'athletes');
+      // const athleteFullName = userData?.lastName + userData?.firstName;
 
-      const athleteDocRef = doc(athleteRef, athleteFullName);
+      // const athleteDocRef = doc(athleteRef, athleteFullName);
+      // await setDoc(athleteDocRef, {
+      //   athleteName: athleteFullName, // 選手名
+      //   events: events, // 入力された種目と記録
+      // });
+
+      // const competitionEntryRef = doc(db, 'competitions', competitionId, 'entries', user.uid);
+      // const userEntryRef = doc(db, 'users', user.uid);
+      // await setDoc(userEntryRef, { events });
+      // await setDoc(competitionEntryRef, { userId: user.uid });
+
+      const athleteRef = collection(db, 'competitions', competitionId, 'athletes');
+      const athleteId = user.uid;
+      const athleteDocRef = doc(athleteRef, athleteId);
       await setDoc(athleteDocRef, {
-        athleteName: athleteFullName, // 選手名
+        athleteId: athleteId, // 選手名
         events: events, // 入力された種目と記録
       });
 
@@ -168,9 +176,9 @@ const CompetitionEntry: React.FC = () => {
   };
 
   return (
-    <div className="vh-100 base-background-color">
-      <div className="mx-3 container-flex d-flex justify-content-center align-items-center vh-100">
-        <div className="col-12 col-sm-8 max-height">
+    <div className="min-vh-100 base-background-color">
+      <div className="container-flex d-flex justify-content-center align-items-center min-vh-100">
+        <div className="col-12 col-lg-8 max-height">
           <div className="rounded-4 bg-white p-4">
             <div className="d-flex justify-content-between mb-4">
               <button onClick={() => navigate(`/competitions`)} className="btn bi bi-arrow-left">
@@ -181,7 +189,7 @@ const CompetitionEntry: React.FC = () => {
               </button>
             </div>
             <h2 className="text-center fw-bolder mb-4">{competitionName ? competitionName : "大会情報を取得中..."}<br/>種目の登録</h2>
-            <div className="d-flex justify-content-end">
+            <div className="d-flex justify-content-end text-end">
               {userData ? (
                 <p>ログイン中<br/>{userData.lastName} {userData.firstName}</p>
               ) : (
@@ -202,7 +210,7 @@ const CompetitionEntry: React.FC = () => {
             <form onSubmit={handleSubmit}>
               {events.map((event, index) => (
                 <div className="form-group mb-4" key={index}>
-                  <div className="event-register-box border border-2 border-black rounded-2 p-3">
+                  <div className="event-register-box border border-2 border-black rounded-3 p-3">
                     <p className='fs-5 event-register px-2'>種目 {index + 1}</p>
                     <div className=" d-flex justify-content-end">
                       <button

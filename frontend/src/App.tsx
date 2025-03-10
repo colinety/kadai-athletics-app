@@ -9,6 +9,9 @@ import AddCompetition from './components/AddCompetition';
 import CompetitionEntry from './components/CompetitionEntry';
 import CompetitionEntries from './components/CompetitionEntries';
 import ResetPassword from './components/ResetPassword';
+import AllMembers from './components/AllMembers';
+import AddMemberInfo from './components/AddMemberInfo';
+import CorrectionMemberInfo from './components/CorrectionMemberInfo';
 
 const App: React.FC = () => {
   return (
@@ -22,6 +25,9 @@ const App: React.FC = () => {
           <Route path='/add-competition' element={<AddCompetition />} />
           <Route path='/competition-entry/:competitionId' element={<CompetitionEntry />} />
           <Route path='/competition-entry/:competitionId/entries' element={<CompetitionEntries />} />
+          <Route path='/all-members' element={<AllMembers />} />
+          <Route path='/add-member-info' element={<AddMemberInfo />} />
+          <Route path='correction-member-info/:id' element={<CorrectionMemberInfo />} />
         </Routes>
       </Router>
     </AuthProvider>
