@@ -1,42 +1,55 @@
-// register.tsx（Reactコンポーネントとして作成）
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, useParams } from 'react-router-dom';
 
-const AddAthleteInfo: React.FC = () => {
+const AddMemberInfo: React.FC = () => {
   const { user, userData, logout, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   interface AthleteData {
-    学連登録番号: string;
-    県登録番号: number | null;
-    姓: string;
-    名: string;
-    姓カナ: string;
-    名カナ: string;
-    所属陸協: string;
-    性別: string;
-    学年: string;
-    陸連ナンバー: number;
+    gakurenNumber: string | null;
+    associationNumber: number | null;
+    lastName: string;
+    firstName: string;
+    lastNameKana: string;
+    firstNameKana: string;
+    association: string;
+    sex: string;
+    grade: string;
+    jaafNumber: number | null;
+    isAdmin: boolean;
   }
-  const [athleteData, setAthleteData] = useState({
-    学連登録番号: '',
-    県登録番号: undefined,
-    姓: '',
-    名: '',
-    姓カナ: '',
-    名カナ: '',
-    所属陸協: '',
-    性別: '',
-    学年: '',
-    陸連ナンバー: undefined,
+  const [athleteData, setAthleteData] = useState<AthleteData>({
+    gakurenNumber: '',
+    associationNumber: null,
+    lastName: '',
+    firstName: '',
+    lastNameKana: '',
+    firstNameKana: '',
+    association: '',
+    sex: '',
+    grade: '',
+    jaafNumber: null,
+    isAdmin: false,
   });
 
+  const locationOptions = [
+    '北海道', '青森', '岩手', '宮城', '秋田',
+    '山形', '福島', '茨城', '栃木', '群馬',
+    '埼玉', '千葉', '東京', '神奈川', '新潟',
+    '富山', '石川', '福井', '山梨', '長野',
+    '岐阜', '静岡', '愛知', '三重', '滋賀',
+    '京都', '大阪', '兵庫', '奈良', '和歌山',
+    '鳥取', '島根', '岡山', '広島', '山口',
+    '徳島', '香川', '愛媛', '高知', '福岡',
+    '佐賀', '長崎', '熊本', '大分', '宮崎',
+    '鹿児島', '沖縄'
+  ];
   const sexOptions = ['男', '女'];
   const gradeOptions = [
     '1', '2', '3', '4', '5', '6',
@@ -51,17 +64,32 @@ const AddAthleteInfo: React.FC = () => {
   }, [user, loading, navigate]);
   
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAthleteData({
-      ...athleteData,
-      [e.target.name]: e.target.value,
-    });
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+
+    setAthleteData((prevData) => ({
+      ...prevData,
+      [name]: ['prefectureNumber', 'jaafNumber'].includes(name)
+      ? value ? parseInt(value, 10) || null : null
+      : value,
+    }));
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email || !password) {
+      alert('メールアドレスとパスワードを入力してください');
+      return;
+    }
     const fullEmail = email + '@kadai.jp';
     try {
+      const userDocRef = doc(db, 'users', fullEmail);
+      const userDocSnap = await getDoc(userDocRef);
+      if (userDocSnap.exists()) {
+        alert('既に登録されているメールアドレスです');
+        return;
+      }
+
       // ユーザーの作成
       const userCredential = await createUserWithEmailAndPassword(auth, fullEmail, password);
       const uid = userCredential.user.uid;
@@ -70,11 +98,11 @@ const AddAthleteInfo: React.FC = () => {
         fullEmail,
         ...athleteData,
       });
-
       alert('選手情報が登録されました！');
+      navigate('/all-members');
     } catch (error) {
       console.error('エラーが発生しました:', error);
-      alert('エラーが発生しました');
+      alert('登録に失敗しました');
     }
   };
 
@@ -83,29 +111,21 @@ const AddAthleteInfo: React.FC = () => {
       <div className="container-flex d-flex justify-content-center align-items-center vh-100">
         <div className="col-12 col-lg-8 max-height">
           <div className="rounded-4 bg-white p-4 m-4">
-            <div className="d-flex justify-content-between mb-">
-              <button onClick={() => navigate(`/home`)} className="btn bi bi-arrow-left">
-                戻る
+            <div className="d-flex justify-content-between mb-4">
+              <button onClick={() => navigate(`/all-members`)} className="btn bi bi-arrow-left">
+                &nbsp;戻る
               </button>
               <button onClick={logout} className="btn btn-danger btn-sm rounded-2 text-white px-2 py-2">
                 ログアウト
               </button>
             </div>
             <h2 className="fs-1 text-center fw-bolder mb-4">部員の登録</h2>
-            <div className="d-flex justify-content-end">
+            <div className="d-flex justify-content-end text-end">
               {userData ? (
                 <p>ログイン中<br/>{userData.lastName} {userData.firstName}</p>
               ) : (
                 <p>ユーザデータを取得中...</p>
               )}
-            </div>
-            <div className="d-flex justify-content-between mb-4">
-              {/* <button 
-                className='btn btn-primary btn-sm p-2'
-                onClick={() => navigate(`/competition-entry/${competitionId}/entries`)}
-              >
-                一覧を表示
-              </button> */}
             </div>
             <p className='fs-2'>新規登録</p>
               <form onSubmit={handleRegister}>
@@ -118,6 +138,7 @@ const AddAthleteInfo: React.FC = () => {
                         type="email"
                         name="email"
                         value={email}
+                        placeholder='k1234567'
                         onChange={(e) => setEmail(e.target.value)}
                         required
                       />
@@ -138,16 +159,17 @@ const AddAthleteInfo: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 選手情報の登録フォーム */}
-                <p className='fs-2 mt-5'>選手情報</p>
+                {/* 部員情報の登録フォーム */}
+                <p className='fs-2 mt-5'>部員情報</p>
                 <div className="row g-3">
                   <div className="form-group mb-1 col-12 col-md-6">
                     <label>姓</label>
                     <input
                       className='form-control'
                       type="text"
-                      name="姓"
-                      value={athleteData.姓}
+                      name="lastName"
+                      value={athleteData.lastName}
+                      placeholder='山田'
                       onChange={handleInputChange}
                       required
                     />
@@ -157,8 +179,9 @@ const AddAthleteInfo: React.FC = () => {
                     <input
                       className='form-control'
                       type="text"
-                      name="名"
-                      value={athleteData.名}
+                      name="firstName"
+                      value={athleteData.firstName}
+                      placeholder='太郎'
                       onChange={handleInputChange}
                       required
                     />
@@ -168,8 +191,9 @@ const AddAthleteInfo: React.FC = () => {
                     <input
                       className='form-control'
                       type="text"
-                      name="姓カナ"
-                      value={athleteData.姓カナ}
+                      name="lastNameKana"
+                      value={athleteData.lastNameKana}
+                      placeholder='ヤマダ'
                       onChange={handleInputChange}
                       required
                     />
@@ -179,22 +203,40 @@ const AddAthleteInfo: React.FC = () => {
                     <input
                       className='form-control'
                       type="text"
-                      name="名カナ"
-                      value={athleteData.名カナ}
+                      name="firstNameKana"
+                      value={athleteData.firstNameKana}
+                      placeholder='タロウ'
                       onChange={handleInputChange}
                       required
                     />
+                  </div>
+                  <div className="mb-1 col-12 col-md-6">
+                    <label>性別</label>
+                    <select className='form-select' name='sex' value={athleteData.sex} onChange={handleInputChange} required>
+                      <option value="">性別を選択</option>
+                      {sexOptions.map((option, index) => (
+                        <option key={index} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="mb-1 col-12 col-md-6">
+                    <label>学年</label>
+                    <select className='form-select' name='grade' value={athleteData.grade} onChange={handleInputChange} required>
+                      <option value="">学年を選択</option>
+                      {gradeOptions.map((option, index) => (
+                        <option key={index} value={option}>{option}</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="form-group mb-1 col-12 col-md-6">
                     <label>学連登録番号</label>
                     <input
                       className='form-control'
                       type="text"
-                      name="学連登録番号"
-                      value={athleteData.学連登録番号}
+                      name="gakurenNumber"
+                      value={athleteData.gakurenNumber ?? ''}
                       onChange={handleInputChange}
-                      placeholder="記録を入力"
-                      required
+                      placeholder="8-000"
                     />
                   </div>
                   <div className="form-group mb-1 col-12 col-md-6">
@@ -202,60 +244,35 @@ const AddAthleteInfo: React.FC = () => {
                     <input
                       className='form-control'
                       type="text"
-                      name="県登録番号"
-                      value={athleteData.県登録番号}
+                      name="prefectureNumber"
+                      value={athleteData.associationNumber ?? ''}
                       onChange={handleInputChange}
                       placeholder="記録を入力"
-                      required
                     />
                   </div>
                   <div className="form-group mb-1 col-12 col-md-6">
-                    <label>陸連ナンバー</label>
+                    <label>JAAFナンバー</label>
                     <input
                       className='form-control'
                       type="text"
-                      name="陸連ナンバー"
-                      value={athleteData.陸連ナンバー}
+                      name="jaffNumber"
+                      value={athleteData.jaafNumber ?? ''}
+                      placeholder='00000000'
                       onChange={handleInputChange}
-                      required
                     />
                   </div>
-                  <div className="form-group mb-1 col-12 col-md-6">
+                  <div className="mb-1 col-12 col-md-6">
                     <label>所属陸協</label>
-                    <input
-                      className='form-control'
-                      type="text"
-                      name="所属陸協"
-                      value={athleteData.所属陸協}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  <div className="form-group mb-1 col-12 col-md-6">
-                    <label>性別</label>
-                    <input
-                      className='form-control'
-                      type="text"
-                      name="性別"
-                      value={athleteData.性別}
-                      onChange={handleInputChange}
-                      required
-                    />  
-                  </div>
-                  <div className="form-group mb-1 col-12 col-md-6">
-                    <label>学年</label>
-                    <input
-                      className='form-control'
-                      type="text"
-                      name="学年"
-                      value={athleteData.学年}
-                      onChange={handleInputChange}
-                      required
-                    />
+                    <select className='form-select' name='location' value={athleteData.association} onChange={handleInputChange} required>
+                      <option value=''>所属陸協を選択</option>
+                      {locationOptions.map((option, index) => (
+                        <option key={index} value={option}>{option}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </form>
-              <button className='col-12 btn btn-primary mt-5' type="submit" onClick={handleRegister}>登録</button>
+              <button className='col-12 btn btn-primary mt-5' onClick={handleRegister}>登録</button>
             </div>
           </div>
         </div>
@@ -264,4 +281,4 @@ const AddAthleteInfo: React.FC = () => {
   );
 };
 
-export default AddAthleteInfo;
+export default AddMemberInfo;

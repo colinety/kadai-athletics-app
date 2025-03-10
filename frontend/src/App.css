@@ -38,5 +38,14 @@
 }
 
 .table-scroll {
+  width: 100%;
   overflow-x: auto;
+}
+
+.table-scroll th, .table-scroll td {
+  white-space: nowrap;
+}
+
+.btn-correction {
+  background-color: orange !important;
 }

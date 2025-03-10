@@ -33,13 +33,6 @@ const AddCompetition: React.FC = () => {
       const athleteSubCollectionRef = collection(newCompetitionRef, "athletes");
 
       await addDoc(athleteSubCollectionRef, {
-      //   athleteName: "選手名",
-      //   events: [
-      //     {
-      //       eventName: "種目名",
-      //       record: "記録",
-      //     },
-      //   ],
       });
 
       alert("大会が追加されました");
@@ -54,7 +47,9 @@ const AddCompetition: React.FC = () => {
     <div className="vh-100 base-background-color">
       <div className="mx-3 container-flex d-flex justify-content-center align-items-center vh-100">
         <div className="col-12 col-sm-8 rounded-4 bg-white p-4">
-          <button onClick={() => navigate("/competitions")} className='btn bi bi-arrow-left'> 戻る</button>
+          <button onClick={() => navigate("/competitions")} className='btn bi bi-arrow-left'>
+            &nbsp;戻る
+          </button>
           <h2 className="text-center fw-bolder">大会の追加</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-group mb-4">

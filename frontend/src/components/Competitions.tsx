@@ -37,7 +37,7 @@ const Competitions: React.FC = () => {
   return (
     <div className="vh-100 base-background-color">
       <div className="mx-3 container-flex d-flex justify-content-center align-items-center vh-100">
-        <div className="col-12 col-sm-8 max-height">
+        <div className="col-12 col-md-8 col-lg-6 max-height">
           <div className="rounded-4 bg-white p-4">
             <div className="col d-flex justify-content-between mb-4">
               <button onClick={() => {navigate("/home")}} className='btn bi bi-arrow-left'> 戻る</button>

@@ -16,8 +16,11 @@ const Home: React.FC = () => {
   return (
     <div className="vh-100 base-background-color">
       <div className="mx-3 container-flex d-flex justify-content-center align-items-center vh-100">
-        <div className="col-12 col-sm-8 rounded-4 bg-white p-4">
+        <div className="col-12 col-md-8 col-lg-6 rounded-4 bg-white p-4">
           <div className="col text-end mb-4">
+            <button onClick={() => navigate('/all-members')} className="btn btn-primary btn-sm rounded-2 text-white px-2 py-2 ms-2 me-3">
+              部員一覧
+            </button>
             <button onClick={logout} className="btn btn-danger btn-sm rounded-2 text-white px-2 py-2">
               ログアウト
             </button>
@@ -34,7 +37,7 @@ const Home: React.FC = () => {
             </div>
           <div className="row">
             <div className="col-6">
-              <button onClick={() => navigate('/competitions')} className="btn button-shade rounded-0 w-100 pt-3">
+              <button onClick={() => navigate('/competitions')} className="btn button-shade rounded-0 w-100 pt-3 hover-btn">
                 <img src="./images/home_dash.png" className="register-logo" alt="" />
                 <p className="mt-3">大会の登録</p>
               </button>
