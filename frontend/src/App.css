@@ -49,3 +49,73 @@
 .btn-correction {
   background-color: orange !important;
 }
+
+.no-margin {
+  margin: 0 !important;
+}
+
+.switch_label {
+  display: flex;
+  position: relative;
+  align-items: center;
+}
+
+input[type='checkbox'] {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.base {
+  width: 64px;
+  border-radius: 16px;
+  height: 32px;
+  background-color: #ddd;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-weight: bold;
+  position: relative;
+  justify-content: flex-end;
+  font-size: 12px;
+}
+
+.circle {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  background-color: gray;
+  transition: .3s;
+  z-index: 3;
+}
+
+.switch {
+  position: relative;
+  width: 64px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+}
+
+input:checked ~ .base {
+  background-color: #3acced;
+  /* transition: .3s; */
+  justify-content: flex-start;
+  font-size: 12px;
+}
+
+input:checked ~ .base .switch_text {
+  font-size: 12px;
+  text-align: flex-start;
+  /* transition: .3s; */
+}
+
+input:checked ~ .circle {
+  transform: translateX(32px);
+  transition: .3s;
+  background-color: white;
+}

@@ -8,6 +8,7 @@ const CorrectionMemberInfo: React.FC = () => {
   const { user, userData, logout, loading } = useAuth();
   const [memberInfo, setMemberInfo] = useState<any[]>([]);
   const { id } = useParams();
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
   interface MemberData {
@@ -122,9 +123,28 @@ const CorrectionMemberInfo: React.FC = () => {
                 <p>ユーザデータを取得中...</p>
               )}
             </div>
-            <form>
               {/* 部員情報の登録フォーム */}
-              <p className='fs-2 mt-5'>部員情報</p>
+              <div className='d-flex justify-content-between align-items-center my-4'>
+                <p className='fs-2 align-middle m-0'>部員情報</p>
+                <label htmlFor="switch" className='switch_label'>
+                  <span className='me-3'>管理者権限</span>
+                  <div className='switch'>
+                    <input
+                      type="checkbox"
+                      id='switch'
+                      checked={isAdmin}
+                      onChange={() => setIsAdmin(!isAdmin)}
+                    />
+                    <div className='circle'></div>
+                    <div className='base ${isAdmin ? "true" : "false"}'>
+                      <span className='switch_text'>
+                        {isAdmin ? 'ON' : 'OFF'}
+                      </span>
+                    </div>
+                  </div>
+                </label>
+              </div>
+              <form>
               <div className="row g-3">
                 <div className="form-group mb-1 col-12 col-md-6">
                   <label>姓</label>

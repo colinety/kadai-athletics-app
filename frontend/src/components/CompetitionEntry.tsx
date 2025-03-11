@@ -147,27 +147,27 @@ const CompetitionEntry: React.FC = () => {
       }
 
       // Firestoreの競技大会と選手情報のサブコレクションにデータを追加
-      // const athleteRef = collection(db, 'competitions', competitionId, 'athletes');
-      // const athleteFullName = userData?.lastName + userData?.firstName;
-
-      // const athleteDocRef = doc(athleteRef, athleteFullName);
-      // await setDoc(athleteDocRef, {
-      //   athleteName: athleteFullName, // 選手名
-      //   events: events, // 入力された種目と記録
-      // });
-
-      // const competitionEntryRef = doc(db, 'competitions', competitionId, 'entries', user.uid);
-      // const userEntryRef = doc(db, 'users', user.uid);
-      // await setDoc(userEntryRef, { events });
-      // await setDoc(competitionEntryRef, { userId: user.uid });
-
       const athleteRef = collection(db, 'competitions', competitionId, 'athletes');
-      const athleteId = user.uid;
-      const athleteDocRef = doc(athleteRef, athleteId);
+      const athleteFullName = userData?.lastName + userData?.firstName;
+
+      const athleteDocRef = doc(athleteRef, athleteFullName);
       await setDoc(athleteDocRef, {
-        athleteId: athleteId, // 選手名
+        athleteName: athleteFullName, // 選手名
         events: events, // 入力された種目と記録
       });
+
+      const competitionEntryRef = doc(db, 'competitions', competitionId, 'entries', user.uid);
+      // const userEntryRef = doc(db, 'users', user.uid);
+      // await setDoc(userEntryRef, { events });
+      await setDoc(competitionEntryRef, { userId: user.uid });
+
+      // const athleteRef = collection(db, 'competitions', competitionId, 'athletes');
+      // const athleteId = user.uid;
+      // const athleteDocRef = doc(athleteRef, athleteId);
+      // await setDoc(athleteDocRef, {
+      //   athleteId: athleteId, // 選手名
+      //   events: events, // 入力された種目と記録
+      // });
 
       navigate(`/competitions`);
     } catch (error) {
