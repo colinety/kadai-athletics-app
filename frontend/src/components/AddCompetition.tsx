@@ -25,6 +25,11 @@ const AddCompetition: React.FC = () => {
       return;
     }
 
+    if (!competitionName) {
+      alert("大会名を入力してください");
+      return;
+    }
+
     try {
       const newCompetitionRef = await addDoc(collection(db, "competitions"), {
         name: competitionName,
